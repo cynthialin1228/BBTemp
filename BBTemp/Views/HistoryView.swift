@@ -20,7 +20,7 @@ struct HistoryView: View {
                             endDate: endOfMonth(month),
                             isHistoryView: true
                         )
-                        .frame(height: 250)
+                        .frame(height: 320)
                     }
                     .background(Color(.systemBackground))
                     .cornerRadius(12)

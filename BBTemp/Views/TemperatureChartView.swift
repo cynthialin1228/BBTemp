@@ -61,29 +61,49 @@ struct TemperatureChartView: View {
             }
         }
         .chartXAxis {
-            AxisMarks(values: .stride(by: .day, count: 1)) { value in
-                if let date = value.as(Date.self) {
-                    AxisGridLine()
-                    AxisValueLabel {
-                        VStack(spacing: 2) {
-                            ZStack {
-                                RoundedRectangle(cornerRadius: 4)
-                                    .fill(Color(.systemGray6))
-                                    .frame(width: 28, height: 20)
+            if isHistoryView {
+                AxisMarks(values: customHistoryXAxisDates()) { value in
+                    if let date = value.as(Date.self) {
+                        AxisGridLine()
+                        AxisValueLabel {
+                            VStack(spacing: 0) {
                                 Text(dayOfMonth(date))
                                     .font(.footnote)
                                     .foregroundColor(isToday(date) ? .blue : .primary)
                                     .fontWeight(isToday(date) ? .bold : .regular)
+                                Text(shortWeekday(date))
+                                    .font(.caption2)
+                                    .foregroundColor(.secondary)
                             }
-                            // Period day icon
-                            if let entry = entries.first(where: { calendar.isDate($0.date, inSameDayAs: date) }), entry.isPeriodDay {
-                                Image(systemName: "drop.fill")
-                                    .font(.system(size: 10))
-                                    .foregroundColor(.red)
-                                    .padding(.top, 1)
-                            }
+                            .frame(width: 32)
+                            .padding(.vertical, 2)
                         }
-                        .padding(.vertical, 2)
+                    }
+                }
+            } else {
+                AxisMarks(values: .stride(by: .day, count: 1)) { value in
+                    if let date = value.as(Date.self) {
+                        AxisGridLine()
+                        AxisValueLabel {
+                            VStack(spacing: 2) {
+                                ZStack {
+                                    RoundedRectangle(cornerRadius: 4)
+                                        .fill(Color(.systemGray6))
+                                        .frame(width: 28, height: 20)
+                                    Text(dayOfMonth(date))
+                                        .font(.footnote)
+                                        .foregroundColor(isToday(date) ? .blue : .primary)
+                                        .fontWeight(isToday(date) ? .bold : .regular)
+                                }
+                                if let entry = entries.first(where: { calendar.isDate($0.date, inSameDayAs: date) }), entry.isPeriodDay {
+                                    Image(systemName: "drop.fill")
+                                        .font(.system(size: 10))
+                                        .foregroundColor(.red)
+                                        .padding(.top, 1)
+                                }
+                            }
+                            .padding(.vertical, 2)
+                        }
                     }
                 }
             }
@@ -111,5 +131,35 @@ struct TemperatureChartView: View {
         let formatter = DateFormatter()
         formatter.dateFormat = "d"
         return formatter.string(from: date)
+    }
+    
+    private func shortMonth(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MMM"
+        return formatter.string(from: date)
+    }
+    
+    private func shortWeekday(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "E"
+        return formatter.string(from: date)
+    }
+    
+    private func customHistoryXAxisDates() -> [Date] {
+        guard let first = entries.map({ $0.date }).min(), let last = entries.map({ $0.date }).max() else { return [] }
+        var dates: [Date] = []
+        var current = first
+        while current < last {
+            dates.append(current)
+            if let next = calendar.date(byAdding: .day, value: 7, to: current) {
+                current = next
+            } else {
+                break
+            }
+        }
+        if !calendar.isDate(dates.last ?? Date.distantPast, inSameDayAs: last) {
+            dates.append(last)
+        }
+        return dates
     }
 } 
