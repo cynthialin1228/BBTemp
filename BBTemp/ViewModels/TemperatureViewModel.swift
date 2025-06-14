@@ -113,4 +113,10 @@ class TemperatureViewModel: ObservableObject {
         let oneMonthAgo = calendar.date(byAdding: .month, value: -1, to: Date()) ?? Date()
         return entries.filter { $0.date >= oneMonthAgo }
     }
+    
+    func deleteEntry(for date: Date) {
+        entries.removeAll { Calendar.current.isDate($0.date, inSameDayAs: date) }
+        saveData()
+        objectWillChange.send()
+    }
 } 
