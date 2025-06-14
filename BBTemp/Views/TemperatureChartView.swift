@@ -1,5 +1,6 @@
 import SwiftUI
 import Charts
+import UniformTypeIdentifiers
 
 struct TemperatureChartView: View {
     let entries: [TemperatureEntry]
@@ -7,109 +8,120 @@ struct TemperatureChartView: View {
     let endDate: Date
     var isHistoryView: Bool = false
     var isPeriodPage: Bool = false
+    var showDates: Bool = false
     
     private let calendar = Calendar.current
     
     var body: some View {
-        Chart {
-            // Add background highlight for the target temperature range
-            RectangleMark(
-                xStart: .value("Start", startDate),
-                xEnd: .value("End", endDate),
-                yStart: .value("Min", 36.65),
-                yEnd: .value("Max", 36.75)
-            )
-            .foregroundStyle(Color.yellow.opacity(0.2))
-            
-            // Add today's vertical line
-            if isTodayInRange() {
-                RuleMark(
-                    x: .value("Today", Date())
+        VStack(spacing: 0) {
+            Chart {
+                // Add background highlight for the target temperature range
+                RectangleMark(
+                    xStart: .value("Start", startDate),
+                    xEnd: .value("End", endDate),
+                    yStart: .value("Min", 36.65),
+                    yEnd: .value("Max", 36.75)
                 )
-                .foregroundStyle(Color.blue.opacity(0.3))
-                .lineStyle(StrokeStyle(lineWidth: 1, dash: [5, 5]))
-            }
-            
-            ForEach(entries) { entry in
-                LineMark(
-                    x: .value("Date", entry.date),
-                    y: .value("Temperature", entry.temperature)
-                )
-                .foregroundStyle(
-                    isPeriodPage ? Color.blue : (isHistoryView ? (entry.isPeriodDay ? Color.red : Color.blue) : Color.blue)
-                )
+                .foregroundStyle(Color.yellow.opacity(0.2))
                 
-                PointMark(
-                    x: .value("Date", entry.date),
-                    y: .value("Temperature", entry.temperature)
-                )
-                .foregroundStyle(
-                    isPeriodPage ? Color.blue : (isHistoryView ? (entry.isPeriodDay ? Color.red : Color.blue) : Color.blue)
-                )
-            }
-        }
-        .chartYScale(domain: 35.75...37.5)
-        .chartYAxis {
-            AxisMarks(values: .automatic(desiredCount: 8)) { value in
-                AxisGridLine()
-                AxisValueLabel {
-                    if let temp = value.as(Double.self) {
-                        Text(String(format: "%.2f°", temp))
-                            .font(.caption)
-                    }
+                // Add today's vertical line
+                if isTodayInRange() {
+                    RuleMark(
+                        x: .value("Today", Date())
+                    )
+                    .foregroundStyle(Color.blue.opacity(0.3))
+                    .lineStyle(StrokeStyle(lineWidth: 1, dash: [5, 5]))
+                }
+                
+                ForEach(entries) { entry in
+                    LineMark(
+                        x: .value("Date", entry.date),
+                        y: .value("Temperature", entry.temperature)
+                    )
+                    .foregroundStyle(
+                        isPeriodPage ? Color.blue : (isHistoryView ? (entry.isPeriodDay ? Color.red : Color.blue) : Color.blue)
+                    )
+                    
+                    PointMark(
+                        x: .value("Date", entry.date),
+                        y: .value("Temperature", entry.temperature)
+                    )
+                    .foregroundStyle(
+                        isPeriodPage ? Color.blue : (isHistoryView ? (entry.isPeriodDay ? Color.red : Color.blue) : Color.blue)
+                    )
                 }
             }
-        }
-        .chartXAxis {
-            if isHistoryView {
-                AxisMarks(values: customHistoryXAxisDates()) { value in
-                    if let date = value.as(Date.self) {
-                        AxisGridLine()
-                        AxisValueLabel {
-                            VStack(spacing: 0) {
-                                Text(dayOfMonth(date))
-                                    .font(.footnote)
-                                    .foregroundColor(isToday(date) ? .blue : .primary)
-                                    .fontWeight(isToday(date) ? .bold : .regular)
-                                Text(shortWeekday(date))
-                                    .font(.caption2)
-                                    .foregroundColor(.secondary)
-                            }
-                            .frame(width: 32)
-                            .padding(.vertical, 2)
+            .chartYScale(domain: 35.75...37.5)
+            .chartYAxis {
+                AxisMarks(values: .automatic(desiredCount: 8)) { value in
+                    AxisGridLine()
+                    AxisValueLabel {
+                        if let temp = value.as(Double.self) {
+                            Text(String(format: "%.2f°", temp))
+                                .font(.caption)
                         }
                     }
                 }
-            } else {
-                AxisMarks(values: .stride(by: .day, count: 1)) { value in
-                    if let date = value.as(Date.self) {
-                        AxisGridLine()
-                        AxisValueLabel {
-                            VStack(spacing: 2) {
-                                ZStack {
-                                    RoundedRectangle(cornerRadius: 4)
-                                        .fill(Color(.systemGray6))
-                                        .frame(width: 28, height: 20)
+            }
+            .chartXAxis {
+                if isHistoryView || showDates {
+                    AxisMarks(values: .stride(by: .day, count: 1)) { value in
+                        if let date = value.as(Date.self) {
+                            AxisGridLine()
+                            AxisValueLabel {
+                                if showDates {
+                                    VStack(spacing: 0) {
+                                        Text(dayOfMonth(date))
+                                            .font(.footnote)
+                                            .foregroundColor(isToday(date) ? .blue : .primary)
+                                            .fontWeight(isToday(date) ? .bold : .regular)
+                                        Text(shortMonth(date))
+                                            .font(.caption2)
+                                            .foregroundColor(.secondary)
+                                    }
+                                    .frame(width: 40)
+                                } else {
                                     Text(dayOfMonth(date))
                                         .font(.footnote)
                                         .foregroundColor(isToday(date) ? .blue : .primary)
                                         .fontWeight(isToday(date) ? .bold : .regular)
-                                }
-                                if let entry = entries.first(where: { calendar.isDate($0.date, inSameDayAs: date) }), entry.isPeriodDay {
-                                    Image(systemName: "drop.fill")
-                                        .font(.system(size: 10))
-                                        .foregroundColor(.red)
-                                        .padding(.top, 1)
+                                        .frame(width: 24)
                                 }
                             }
-                            .padding(.vertical, 2)
+                        }
+                    }
+                } else {
+                    AxisMarks(values: .stride(by: .day, count: 1)) { value in
+                        if let date = value.as(Date.self) {
+                            AxisGridLine()
+                            AxisValueLabel {
+                                VStack(spacing: 2) {
+                                    ZStack {
+                                        RoundedRectangle(cornerRadius: 4)
+                                            .fill(Color(.systemGray6))
+                                            .frame(width: 28, height: 20)
+                                        Text(dayOfMonth(date))
+                                            .font(.footnote)
+                                            .foregroundColor(isToday(date) ? .blue : .primary)
+                                            .fontWeight(isToday(date) ? .bold : .regular)
+                                    }
+                                    if let entry = entries.first(where: { calendar.isDate($0.date, inSameDayAs: date) }), entry.isPeriodDay {
+                                        Image(systemName: "drop.fill")
+                                            .font(.system(size: 10))
+                                            .foregroundColor(.red)
+                                            .padding(.top, 1)
+                                    }
+                                }
+                                .padding(.vertical, 2)
+                            }
                         }
                     }
                 }
             }
+            .frame(height: 250)
+            .padding(.horizontal)
+            .padding(.bottom, 8)
         }
-        .frame(height: 300)
-        .padding()
     }
     
     private func isTodayInRange() -> Bool {
@@ -161,5 +173,37 @@ struct TemperatureChartView: View {
             dates.append(last)
         }
         return dates
+    }
+    
+    private func getLastThreeMonthsData() -> [TemperatureEntry] {
+        let threeMonthsAgo = calendar.date(byAdding: .month, value: -3, to: Date()) ?? Date()
+        return entries.filter { $0.date >= threeMonthsAgo }
+    }
+}
+
+struct TemperatureDataDocument: FileDocument {
+    static var readableContentTypes: [UTType] { [.commaSeparatedText] }
+    
+    var entries: [TemperatureEntry]
+    
+    init(entries: [TemperatureEntry]) {
+        self.entries = entries
+    }
+    
+    init(configuration: ReadConfiguration) throws {
+        entries = []
+    }
+    
+    func fileWrapper(configuration: WriteConfiguration) throws -> FileWrapper {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
+        
+        let csvString = "Date,Temperature,Is Period Day\n" +
+            entries.map { entry in
+                "\(dateFormatter.string(from: entry.date)),\(entry.temperature),\(entry.isPeriodDay)"
+            }.joined(separator: "\n")
+        
+        let data = Data(csvString.utf8)
+        return FileWrapper(regularFileWithContents: data)
     }
 } 

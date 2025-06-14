@@ -108,7 +108,7 @@ struct ContentView: View {
             }
             .sheet(isPresented: $showingInputSheet) {
                 TemperatureInputView(viewModel: viewModel)
-            }
+        }
         }
     }
     

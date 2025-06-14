@@ -3,9 +3,11 @@ import SwiftUI
 struct TemperatureInputView: View {
     @Environment(\.dismiss) private var dismiss
     @ObservedObject var viewModel: TemperatureViewModel
-    @State private var temperature: String = ""
+    @State private var temperature: Double = 36.5
     @State private var isPeriodDay: Bool = false
     @State private var selectedDate = Date()
+    
+    private let temperatureRange = stride(from: 35.0, through: 38.0, by: 0.05)
     
     var isEditing: Bool {
         viewModel.getEntryForDate(selectedDate) != nil
@@ -35,10 +37,10 @@ struct TemperatureInputView: View {
                             .labelsHidden()
                             .onChange(of: selectedDate) { newDate in
                                 if let existingEntry = viewModel.getEntryForDate(newDate) {
-                                    temperature = String(format: "%.1f", existingEntry.temperature)
+                                    temperature = existingEntry.temperature
                                     isPeriodDay = existingEntry.isPeriodDay
                                 } else {
-                                    temperature = ""
+                                    temperature = 36.5
                                     isPeriodDay = false
                                 }
                             }
@@ -50,11 +52,15 @@ struct TemperatureInputView: View {
                         HStack(spacing: 12) {
                             Image(systemName: "thermometer")
                                 .foregroundColor(.orange)
-                            TextField("Temperature (°C)", text: $temperature)
-                                .keyboardType(.decimalPad)
-                                .padding(10)
-                                .background(Color(.systemGray6))
-                                .cornerRadius(8)
+                            Picker("Temperature", selection: $temperature) {
+                                ForEach(Array(temperatureRange), id: \.self) { temp in
+                                    Text(String(format: "%.2f°C", temp))
+                                        .tag(temp)
+                                }
+                            }
+                            .pickerStyle(.wheel)
+                            .frame(height: 100)
+                            .clipped()
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(.horizontal, 8)
@@ -78,14 +84,12 @@ struct TemperatureInputView: View {
                     // Action Buttons
                     VStack(spacing: 12) {
                         Button(action: {
-                            if let temp = Double(temperature) {
-                                viewModel.addEntry(
-                                    date: selectedDate,
-                                    temperature: temp,
-                                    isPeriodDay: isPeriodDay
-                                )
-                                dismiss()
-                            }
+                            viewModel.addEntry(
+                                date: selectedDate,
+                                temperature: temperature,
+                                isPeriodDay: isPeriodDay
+                            )
+                            dismiss()
                         }) {
                             Text(isEditing ? "Update" : "Save")
                                 .font(.headline)
@@ -95,7 +99,6 @@ struct TemperatureInputView: View {
                                 .foregroundColor(.white)
                                 .cornerRadius(10)
                         }
-                        .disabled(temperature.isEmpty)
                         
                         if isEditing {
                             Divider().padding(.horizontal, 8)
@@ -125,10 +128,10 @@ struct TemperatureInputView: View {
             }
             .onAppear {
                 if let existingEntry = viewModel.getEntryForDate(selectedDate) {
-                    temperature = String(format: "%.1f", existingEntry.temperature)
+                    temperature = existingEntry.temperature
                     isPeriodDay = existingEntry.isPeriodDay
                 } else {
-                    temperature = ""
+                    temperature = 36.5
                     isPeriodDay = false
                 }
             }
