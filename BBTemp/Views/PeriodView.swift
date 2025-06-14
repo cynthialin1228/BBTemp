@@ -14,10 +14,11 @@ struct PeriodView: View {
                             .padding(.horizontal)
                         
                         TemperatureChartView(
-                            entries: getEntriesForPeriod(period),
+                            entries: getEntriesForPeriod(period).filter { $0.isPeriodDay },
                             startDate: period.start,
                             endDate: period.end,
-                            isHistoryView: true
+                            isHistoryView: true,
+                            isPeriodPage: true
                         )
                         .frame(height: 320)
                         .padding(.horizontal, 12)

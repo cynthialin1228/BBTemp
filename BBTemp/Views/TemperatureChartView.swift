@@ -6,6 +6,7 @@ struct TemperatureChartView: View {
     let startDate: Date
     let endDate: Date
     var isHistoryView: Bool = false
+    var isPeriodPage: Bool = false
     
     private let calendar = Calendar.current
     
@@ -34,13 +35,17 @@ struct TemperatureChartView: View {
                     x: .value("Date", entry.date),
                     y: .value("Temperature", entry.temperature)
                 )
-                .foregroundStyle(isHistoryView && entry.isPeriodDay ? Color.pink : Color.blue)
+                .foregroundStyle(
+                    isPeriodPage ? Color.blue : (isHistoryView ? (entry.isPeriodDay ? Color.red : Color.blue) : Color.blue)
+                )
                 
                 PointMark(
                     x: .value("Date", entry.date),
                     y: .value("Temperature", entry.temperature)
                 )
-                .foregroundStyle(isHistoryView && entry.isPeriodDay ? Color.pink : Color.blue)
+                .foregroundStyle(
+                    isPeriodPage ? Color.blue : (isHistoryView ? (entry.isPeriodDay ? Color.red : Color.blue) : Color.blue)
+                )
             }
         }
         .chartYScale(domain: 35.75...37.5)
@@ -60,14 +65,23 @@ struct TemperatureChartView: View {
                 if let date = value.as(Date.self) {
                     AxisGridLine()
                     AxisValueLabel {
-                        ZStack {
-                            RoundedRectangle(cornerRadius: 4)
-                                .fill(Color(.systemGray6))
-                                .frame(width: 28, height: 20)
-                            Text(dayOfMonth(date))
-                                .font(.footnote)
-                                .foregroundColor(isToday(date) ? .blue : .primary)
-                                .fontWeight(isToday(date) ? .bold : .regular)
+                        VStack(spacing: 2) {
+                            ZStack {
+                                RoundedRectangle(cornerRadius: 4)
+                                    .fill(Color(.systemGray6))
+                                    .frame(width: 28, height: 20)
+                                Text(dayOfMonth(date))
+                                    .font(.footnote)
+                                    .foregroundColor(isToday(date) ? .blue : .primary)
+                                    .fontWeight(isToday(date) ? .bold : .regular)
+                            }
+                            // Period day icon
+                            if let entry = entries.first(where: { calendar.isDate($0.date, inSameDayAs: date) }), entry.isPeriodDay {
+                                Image(systemName: "drop.fill")
+                                    .font(.system(size: 10))
+                                    .foregroundColor(.red)
+                                    .padding(.top, 1)
+                            }
                         }
                         .padding(.vertical, 2)
                     }
