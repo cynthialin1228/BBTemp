@@ -7,13 +7,15 @@ class TemperatureViewModel: ObservableObject {
     @Published var visibleDateRange: (start: Date, end: Date)
     private let saveKey = "temperatureEntries"
     private let calendar = Calendar.current
-    private let defaultDaysToShow = 10
+    private let defaultDaysToShow = 8
     
     init() {
         // Initialize with the last 10 days
         let today = Date()
-        let startDate = calendar.date(byAdding: .day, value: -(defaultDaysToShow - 1), to: today) ?? today
-        visibleDateRange = (startDate, today)
+        let calendar = Calendar.current
+        let tomorrow = calendar.date(byAdding: .day, value: 1, to: today) ?? today
+        let startDate = calendar.date(byAdding: .day, value: -(defaultDaysToShow - 1), to: tomorrow) ?? tomorrow
+        visibleDateRange = (startDate, tomorrow)
         loadData()
     }
     
@@ -45,12 +47,13 @@ class TemperatureViewModel: ObservableObject {
     func updateVisibleRange(by days: Int) {
         let newStart = calendar.date(byAdding: .day, value: days, to: visibleDateRange.start) ?? visibleDateRange.start
         let newEnd = calendar.date(byAdding: .day, value: days, to: visibleDateRange.end) ?? visibleDateRange.end
-        
-        // Don't allow scrolling to future dates
-        if newEnd > Date() {
+        let tomorrow = calendar.date(byAdding: .day, value: 1, to: calendar.startOfDay(for: Date())) ?? calendar.startOfDay(for: Date())
+        // If newEnd is after tomorrow, clamp to tomorrow and adjust start
+        if newEnd > tomorrow {
+            let adjustedStart = calendar.date(byAdding: .day, value: -(defaultDaysToShow - 1), to: tomorrow) ?? tomorrow
+            visibleDateRange = (adjustedStart, tomorrow)
             return
         }
-        
         visibleDateRange = (newStart, newEnd)
     }
     

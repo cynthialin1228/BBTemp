@@ -27,7 +27,7 @@ struct PeriodView: View {
                         VStack(alignment: .leading, spacing: 12) {
                             HStack(spacing: 8) {
                                 Image(systemName: "calendar")
-                                    .foregroundColor(.blue)
+                                    .foregroundColor(.black)
                                 Text("Period Duration")
                                     .font(.subheadline)
                                     .foregroundColor(.secondary)
@@ -39,7 +39,7 @@ struct PeriodView: View {
                             
                             HStack(spacing: 8) {
                                 Image(systemName: "clock")
-                                    .foregroundColor(.blue)
+                                    .foregroundColor(.black)
                                 Text("Cycle Length")
                                     .font(.subheadline)
                                     .foregroundColor(.secondary)

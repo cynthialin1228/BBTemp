@@ -39,13 +39,6 @@ struct ContentView: View {
                         )
                     }
                     
-                    let periodInfo = viewModel.getLastPeriodInfo()
-                    PeriodInfoView(
-                        startDate: periodInfo.startDate,
-                        duration: periodInfo.duration,
-                        daysSinceStart: periodInfo.daysSinceStart
-                    )
-                    
                     HStack {
                         Button(action: {
                             withAnimation {
@@ -54,6 +47,7 @@ struct ContentView: View {
                         }) {
                             Image(systemName: "chevron.left")
                                 .font(.title2)
+                                .foregroundColor(.black)
                         }
                         .padding()
                         
@@ -64,8 +58,8 @@ struct ContentView: View {
                         }) {
                             Image(systemName: "plus.circle.fill")
                                 .font(.system(size: 44))
-                                .foregroundColor(.blue)
-                                .shadow(color: Color.blue.opacity(0.3), radius: 4, x: 0, y: 2)
+                                .foregroundColor(.black)
+                                .shadow(color: Color.black.opacity(0.3), radius: 4, x: 0, y: 2)
                         }
                         
                         Spacer()
@@ -77,16 +71,24 @@ struct ContentView: View {
                         }) {
                             Image(systemName: "chevron.right")
                                 .font(.title2)
+                                .foregroundColor(.black)
                         }
                         .padding()
                     }
                     .padding(.bottom)
+                    
+                    let periodInfo = viewModel.getLastPeriodInfo()
+                    PeriodInfoView(
+                        startDate: periodInfo.startDate,
+                        duration: periodInfo.duration,
+                        daysSinceStart: periodInfo.daysSinceStart
+                    )
                 }
             }
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .principal) {
-                    Text("Basal Body Temperature")
+                    Text("BBT Tracker")
                         .font(.system(.title3, design: .rounded))
                         .fontWeight(.medium)
                         .foregroundColor(.primary)
@@ -97,18 +99,20 @@ struct ContentView: View {
                         NavigationLink(destination: PeriodView(viewModel: viewModel)) {
                             Image(systemName: "drop.fill")
                                 .font(.title3)
+                                .foregroundColor(.black)
                         }
                         
                         NavigationLink(destination: HistoryView(viewModel: viewModel)) {
                             Image(systemName: "clock.arrow.circlepath")
                                 .font(.title3)
+                                .foregroundColor(.black)
                         }
                     }
                 }
             }
             .sheet(isPresented: $showingInputSheet) {
                 TemperatureInputView(viewModel: viewModel)
-        }
+            }
         }
     }
     

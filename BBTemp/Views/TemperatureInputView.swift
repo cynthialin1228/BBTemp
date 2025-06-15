@@ -28,7 +28,7 @@ struct TemperatureInputView: View {
                         // Date Picker
                         HStack(spacing: 12) {
                             Image(systemName: "calendar")
-                                .foregroundColor(.blue)
+                                .foregroundColor(.black)
                             DatePicker(
                                 "Date",
                                 selection: $selectedDate,

@@ -22,14 +22,14 @@ struct TemperatureChartView: View {
                     yStart: .value("Min", 36.65),
                     yEnd: .value("Max", 36.75)
                 )
-                .foregroundStyle(Color.yellow.opacity(0.2))
+                .foregroundStyle(Color(.systemGray5).opacity(0.7))
                 
                 // Add today's vertical line
                 if isTodayInRange() {
                     RuleMark(
                         x: .value("Today", Date())
                     )
-                    .foregroundStyle(Color.blue.opacity(0.3))
+                    .foregroundStyle(Color.black.opacity(0.3))
                     .lineStyle(StrokeStyle(lineWidth: 1, dash: [5, 5]))
                 }
                 
@@ -39,7 +39,7 @@ struct TemperatureChartView: View {
                         y: .value("Temperature", entry.temperature)
                     )
                     .foregroundStyle(
-                        isPeriodPage ? Color.blue : (isHistoryView ? (entry.isPeriodDay ? Color.red : Color.blue) : Color.blue)
+                        isPeriodPage ? Color.black : (isHistoryView ? (entry.isPeriodDay ? Color.red : Color.black) : Color.black)
                     )
                     
                     PointMark(
@@ -47,7 +47,7 @@ struct TemperatureChartView: View {
                         y: .value("Temperature", entry.temperature)
                     )
                     .foregroundStyle(
-                        isPeriodPage ? Color.blue : (isHistoryView ? (entry.isPeriodDay ? Color.red : Color.blue) : Color.blue)
+                        isPeriodPage ? Color.black : (isHistoryView ? (entry.isPeriodDay ? Color.red : Color.black) : Color.black)
                     )
                 }
             }
@@ -73,7 +73,7 @@ struct TemperatureChartView: View {
                                     VStack(spacing: 0) {
                                         Text(dayOfMonth(date))
                                             .font(.footnote)
-                                            .foregroundColor(isToday(date) ? .blue : .primary)
+                                            .foregroundColor(isToday(date) ? .black : .primary)
                                             .fontWeight(isToday(date) ? .bold : .regular)
                                         Text(shortMonth(date))
                                             .font(.caption2)
@@ -83,7 +83,7 @@ struct TemperatureChartView: View {
                                 } else {
                                     Text(dayOfMonth(date))
                                         .font(.footnote)
-                                        .foregroundColor(isToday(date) ? .blue : .primary)
+                                        .foregroundColor(isToday(date) ? .black : .primary)
                                         .fontWeight(isToday(date) ? .bold : .regular)
                                         .frame(width: 24)
                                 }
@@ -102,7 +102,7 @@ struct TemperatureChartView: View {
                                             .frame(width: 28, height: 20)
                                         Text(dayOfMonth(date))
                                             .font(.footnote)
-                                            .foregroundColor(isToday(date) ? .blue : .primary)
+                                            .foregroundColor(isToday(date) ? .black : .primary)
                                             .fontWeight(isToday(date) ? .bold : .regular)
                                     }
                                     if let entry = entries.first(where: { calendar.isDate($0.date, inSameDayAs: date) }), entry.isPeriodDay {

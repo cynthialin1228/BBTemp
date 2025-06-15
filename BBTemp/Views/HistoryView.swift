@@ -17,7 +17,7 @@ struct HistoryView: View {
                     }) {
                         Label("Export Data", systemImage: "square.and.arrow.up")
                             .font(.footnote)
-                            .foregroundColor(.blue)
+                            .foregroundColor(.black)
                             .padding(.horizontal, 12)
                             .padding(.vertical, 6)
                             .background(Color(.systemGray6))
